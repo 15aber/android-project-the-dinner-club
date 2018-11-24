@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">TheDinnerClub</string>
+    <string name="app_name">The Dinner Club</string>
+    <string name="email_hint">email</string>
+    <string name="password_hint" translatable="false">password</string>
+    <string name="tv_login">Log in</string>
+    <string name="btn_register">Register</string>
 </resources>

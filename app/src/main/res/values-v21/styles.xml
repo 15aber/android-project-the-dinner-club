@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -5,10 +6,11 @@
         <item name="colorPrimary">@android:color/white</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorOrangeRed</item>
+        <item name="android:statusBarColor">@android:color/black</item>
         <item name="android:colorBackground">@color/colorDarkPurple</item>
         <item name="android:editTextColor">@android:color/white</item>
         <item name="android:textColorHint">@android:color/white</item>
-        <item name="android:button">@color/colorOrangeRed</item>
+        <item name="android:colorButtonNormal">@color/colorOrangeRed</item>
         <item name="titleTextColor">@color/colorDarkPurple</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
