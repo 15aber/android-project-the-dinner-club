@@ -1,5 +1,6 @@
 package dk.tennarasmussen.thedinnerclub;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +16,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import dk.tennarasmussen.thedinnerclub.Model.User;
+
+import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,7 +36,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvbtnRegister;
 
     private FirebaseAuth mAuth;
-
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +48,17 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etLoginPass);
         btnLogin = findViewById(R.id.btnLoginLogin);
         tvbtnRegister = findViewById(R.id.btnLoginRegister);
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(firebaseAuth.getCurrentUser() != null) {
+                    startActivity(new Intent(LoginActivity.this, CreateDinnerClubActivity.class));
+                }
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         tvbtnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +82,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         //updateUI(currentUser);
@@ -75,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
             final String email = etEmail.getText().toString().trim();
             final String password = etPassword.getText().toString().trim();
 
-            //Method from Firebase tool
+            //Modified from Firebase tool method
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -83,8 +104,9 @@ public class LoginActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.i(TAG, "createUserWithEmail:success");
-                                //FirebaseUser user = mAuth.getCurrentUser();
+                                FirebaseUser user = mAuth.getCurrentUser();
                                 Toast.makeText(LoginActivity.this, "Register successful", Toast.LENGTH_SHORT).show();
+                                writeNewUser(user.getUid(), "Tenna Rasmussen", "Abevej 64", "8000", "Zootopia", 12345678, user.getEmail());
                                 //updateUI(user);
                             } else {
                                 // If sign in fails, display a message to the user.
@@ -105,19 +127,20 @@ public class LoginActivity extends AppCompatActivity {
             final String email = etEmail.getText().toString().trim();
             final String password = etPassword.getText().toString().trim();
 
+            //Modified from Firebase tool method
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "signInWithEmail:success");
+                                Log.i(TAG, "signInWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                                 //updateUI(user);
                             } else {
                                 // If sign in fails, display a message to the user.
-                                Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                Log.i(TAG, "signInWithEmail:failure", task.getException());
                                 Toast.makeText(LoginActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
                                 //updateUI(null);
@@ -129,6 +152,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void writeNewUser(String userId, String name, String streetName, String zipCode, String city, long phone, String email) {
+        User user = new User(name, streetName, zipCode, city, phone, email);
+
+        mDatabase.child(FB_DB_USER).child(userId).setValue(user);
+    }
 
     public boolean validateInput() {
         boolean valid = true;
