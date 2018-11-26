@@ -1,6 +1,10 @@
 package dk.tennarasmussen.thedinnerclub;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,7 +48,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private DatabaseReference mDatabase;
+    FirebaseService mService;
+    boolean mBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +101,6 @@ public class RegisterActivity extends AppCompatActivity {
             }
         };
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
         mAuth = FirebaseAuth.getInstance();
     }
 
@@ -108,8 +111,36 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
+
+        // Bind to LocalService
+        Intent intent = new Intent(this, FirebaseService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(mConnection);
+        mBound = false;
+    }
+
+    //From https://developer.android.com/guide/components/bound-services
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            FirebaseService.LocalBinder binder = (FirebaseService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
     //Register new user
     public void onRegister() {
@@ -127,14 +158,18 @@ public class RegisterActivity extends AppCompatActivity {
                                 Log.i(TAG, "createUserWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 Toast.makeText(RegisterActivity.this, "Register successful", Toast.LENGTH_SHORT).show();
-                                writeNewUser(user.getUid(),
-                                        etName.getText().toString(),
-                                        etStreet.getText().toString(),
-                                        etZip.getText().toString(),
-                                        etCity.getText().toString(),
-                                        Long.parseLong(etPhone.getText().toString()),
-                                        user.getEmail());
-                                //updateUI(user);
+                                if(mBound){
+                                    mService.writeNewUser(user.getUid(),
+                                            etName.getText().toString(),
+                                            etStreet.getText().toString(),
+                                            etZip.getText().toString(),
+                                            etCity.getText().toString(),
+                                            Long.parseLong(etPhone.getText().toString()),
+                                            user.getEmail());
+                                } else {
+                                    Log.i(TAG, "Couldn't add user to database, since not bound to service.");
+                                }
+
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.i(TAG, "createUserWithEmail:failure", task.getException());
@@ -164,12 +199,6 @@ public class RegisterActivity extends AppCompatActivity {
             valid = false;
         }
         return valid;
-    }
-
-    private void writeNewUser(String userId, String name, String streetName, String zipCode, String city, long phone, String email) {
-        User user = new User(name, streetName, zipCode, city, phone, email);
-
-        mDatabase.child(FB_DB_USER).child(userId).setValue(user);
     }
 
     // Modified from: https://developer.android.com/guide/components/activities/activity-lifecycle.html
