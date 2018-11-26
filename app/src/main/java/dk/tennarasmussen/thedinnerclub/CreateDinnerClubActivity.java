@@ -40,8 +40,6 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
                 mAuth.signOut();
             }
         });
-
-
     }
 
     @Override

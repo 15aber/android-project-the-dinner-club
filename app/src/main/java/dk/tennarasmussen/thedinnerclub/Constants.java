@@ -12,4 +12,7 @@ public interface Constants {
     String REGISTER_CITY = "dk.tennarasmussen.thedinnerclub.REGISTER_CITY";
 
     int REGISTER_REQUEST = 1;
+    int LOGIN_REQUEST = 2;
+
+    int NOTIFY_ID = 142;
 }

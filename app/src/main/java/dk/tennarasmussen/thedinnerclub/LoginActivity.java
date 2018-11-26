@@ -30,9 +30,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private String TAG = "LoginActivity";
 
-    //Values
-    private String mEmail, mPassword;
-
     //Views
     private EditText etEmail, etPassword;
     private Button btnLogin;
@@ -55,6 +52,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser() != null) {
+                    //When logged in start service to get newest data
+                    Intent firebaseServiceIntent = new Intent(LoginActivity.this.getApplicationContext(), FirebaseService.class);
+                    startService(firebaseServiceIntent);
+
+                    //When logged in go to createDinnerClubActivity
                     startActivity(new Intent(LoginActivity.this, CreateDinnerClubActivity.class));
                 }
             }
@@ -80,7 +82,6 @@ public class LoginActivity extends AppCompatActivity {
             etEmail.setText(savedInstanceState.getString(LOGIN_EMAIL));
             etPassword.setText(savedInstanceState.getString(LOGIN_PASS));
         }
-
     }
 
     @Override
@@ -121,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                                 //updateUI(user);
+
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.i(TAG, "signInWithEmail:failure", task.getException());

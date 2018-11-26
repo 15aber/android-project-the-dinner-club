@@ -86,6 +86,11 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser() != null) {
+                    //When logged in start service to get newest data
+                    Intent firebaseServiceIntent = new Intent(RegisterActivity.this.getApplicationContext(), FirebaseService.class);
+                    startService(firebaseServiceIntent);
+
+                    //When logged in goto createDinnerClubActivity
                     startActivity(new Intent(RegisterActivity.this, CreateDinnerClubActivity.class));
                 }
             }
