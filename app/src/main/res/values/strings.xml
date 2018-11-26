@@ -6,6 +6,11 @@
     <string name="btn_register">Register</string>
     <string name="required_string">is required</string>
     <string name="not_valid_string">is not valid</string>
-    <string name="btn_logout" >Log out</string>
+    <string name="btn_logout">Log out</string>
     <string name="btn_create_dinner_club">Create New Dinner Club</string>
+    <string name="city_hint">City</string>
+    <string name="name_hint">Name</string>
+    <string name="phone_hint">Phone</string>
+    <string name="street_hint">Street name + nr.</string>
+    <string name="zip_hint">Zip code</string>
 </resources>

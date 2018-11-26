@@ -22,6 +22,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
+import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_EMAIL;
+import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_PASS;
+import static dk.tennarasmussen.thedinnerclub.Constants.REGISTER_REQUEST;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -37,7 +40,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +60,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
         tvbtnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onRegister();
+                RegisterUserDetails();
             }
         });
 
@@ -76,6 +76,10 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        if (savedInstanceState != null) {
+            etEmail.setText(savedInstanceState.getString(LOGIN_EMAIL));
+            etPassword.setText(savedInstanceState.getString(LOGIN_PASS));
+        }
 
     }
 
@@ -87,39 +91,18 @@ public class LoginActivity extends AppCompatActivity {
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         //updateUI(currentUser);
-        Toast.makeText(this, "Already In", Toast.LENGTH_SHORT).show();
     }
 
-    //Register new user
-    public void onRegister() {
-        if(validateInput()) {
-            final String email = etEmail.getText().toString().trim();
-            final String password = etPassword.getText().toString().trim();
-
-            //Modified from Firebase tool method
-            mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.i(TAG, "createUserWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                Toast.makeText(LoginActivity.this, "Register successful", Toast.LENGTH_SHORT).show();
-                                writeNewUser(user.getUid(), "Tenna Rasmussen", "Abevej 64", "8000", "Zootopia", 12345678, user.getEmail());
-                                //updateUI(user);
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.i(TAG, "createUserWithEmail:failure", task.getException());
-                                Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                        Toast.LENGTH_SHORT).show();
-                                //updateUI(null);
-                            }
-
-                            // ...
-                        }
-                    });
+    private void RegisterUserDetails() {
+        // Modified from: https://developer.android.com/guide/components/activities/intro-activities.html
+        Intent intent = new Intent(this, RegisterActivity.class);
+        if(!(etEmail.getText().toString().trim().isEmpty()) && android.util.Patterns.EMAIL_ADDRESS.matcher(etEmail.getText().toString().trim()).matches()) {
+            intent.putExtra(LOGIN_EMAIL, etEmail.getText().toString().trim());
         }
+        if(!(etPassword.getText().toString().trim().isEmpty())) {
+            intent.putExtra(LOGIN_PASS, etPassword.getText().toString().trim());
+        }
+        startActivityForResult(intent, REGISTER_REQUEST);
     }
 
     public void onSignIn() {
@@ -152,11 +135,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void writeNewUser(String userId, String name, String streetName, String zipCode, String city, long phone, String email) {
-        User user = new User(name, streetName, zipCode, city, phone, email);
-
-        mDatabase.child(FB_DB_USER).child(userId).setValue(user);
-    }
 
     public boolean validateInput() {
         boolean valid = true;
@@ -173,5 +151,14 @@ public class LoginActivity extends AppCompatActivity {
             valid = false;
         }
         return valid;
+    }
+
+    // Modified from: https://developer.android.com/guide/components/activities/activity-lifecycle.html
+    //Save inputs for configuration changes
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(LOGIN_EMAIL, etEmail.getText().toString());
+        outState.putString(LOGIN_PASS, etPassword.getText().toString());
+        super.onSaveInstanceState(outState);
     }
 }
