@@ -2,6 +2,8 @@ package dk.tennarasmussen.thedinnerclub;
 
 public interface Constants {
     String FB_DB_USER = "users";
+    String FB_DB_DINNER_CLUB = "dinnerClub";
+    String FB_DB_DINNER_CLUBS = "dinnerClubs";
 
     String LOGIN_EMAIL = "dk.tennarasmussen.thedinnerclub.LOGIN_EMAIL";
     String LOGIN_PASS = "dk.tennarasmussen.thedinnerclub.LOGIN_PASS";

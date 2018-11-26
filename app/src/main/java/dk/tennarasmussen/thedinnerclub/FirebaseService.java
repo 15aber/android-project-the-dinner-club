@@ -65,6 +65,7 @@ public class FirebaseService extends Service {
                 .setContentTitle(getText(R.string.notification_title))
                 .setContentText(getText(R.string.notification_text))
                 .setSmallIcon(R.drawable.ic_people_outline_black_24dp)
+                .setTicker(getText(R.string.notification_text))
                 .setContentIntent(pendingIntent)
                 .build();
 

@@ -8,6 +8,7 @@ public class User {
     private String city;
     private long phone;
     private String email;
+    private String dinnerClubId;
 
     public User() {
     }
@@ -67,5 +68,13 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getDinnerClubId() {
+        return dinnerClubId;
+    }
+
+    public void setDinnerClubId(String dinnerClubId) {
+        this.dinnerClubId = dinnerClubId;
     }
 }
