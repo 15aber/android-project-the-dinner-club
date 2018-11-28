@@ -39,6 +39,7 @@ import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_USER_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUB;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUBS;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
+import static dk.tennarasmussen.thedinnerclub.EmailEncoder.encodeUserEmail;
 
 public class CreateDinnerClubActivity extends AppCompatActivity {
 
@@ -151,13 +152,13 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
     private void createDinnerClubInDB(String dcName) {
         //Create new dinner club in firebase db with current user as member
         FirebaseUser curUser = mAuth.getCurrentUser();
-        String key = mDatabase.child(FB_DB_USER).child(curUser.getUid()).child(FB_DB_DINNER_CLUB).push().getKey();
+        String key = mDatabase.child(FB_DB_USER).child(encodeUserEmail(curUser.getEmail())).child(FB_DB_DINNER_CLUB).push().getKey();
         DinnerClub dinnerClub = new DinnerClub(key, mDCName);
-        dinnerClub.members.put(curUser.getUid(), true);
+        dinnerClub.members.put(encodeUserEmail(curUser.getEmail()), true);
         Map<String, Object> clubValues = dinnerClub.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/" + FB_DB_USER + "/" + curUser.getUid() + "/" + FB_DB_DINNER_CLUB, key);
+        childUpdates.put("/" + FB_DB_USER + "/" + encodeUserEmail(curUser.getEmail()) + "/" + FB_DB_DINNER_CLUB, key);
         childUpdates.put("/" + FB_DB_DINNER_CLUBS + "/" + key, clubValues);
 
         mDatabase.updateChildren(childUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {

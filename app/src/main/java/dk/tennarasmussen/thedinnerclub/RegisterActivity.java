@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -172,6 +173,12 @@ public class RegisterActivity extends AppCompatActivity {
                                 Log.i(TAG, "createUserWithEmail:failure", task.getException());
                                 Toast.makeText(RegisterActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
+                                if(task.getException().getClass().equals(FirebaseAuthUserCollisionException.class)) {
+                                    Log.i(TAG, "The email address is already in use by another account.");
+                                    Toast.makeText(RegisterActivity.this, R.string.collision_string,
+                                            Toast.LENGTH_SHORT).show();
+                                    //To do: Check if user is create in realtime db, if not create...
+                                }
                             }
 
                             // ...

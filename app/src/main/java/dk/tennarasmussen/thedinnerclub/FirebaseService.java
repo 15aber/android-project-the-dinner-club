@@ -28,6 +28,7 @@ import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUBS;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
 import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_REQUEST;
 import static dk.tennarasmussen.thedinnerclub.Constants.NOTIFY_ID;
+import static dk.tennarasmussen.thedinnerclub.EmailEncoder.encodeUserEmail;
 
 public class FirebaseService extends Service {
     public FirebaseService() {
@@ -54,7 +55,7 @@ public class FirebaseService extends Service {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser() != null) {
-                    Log.i(TAG, "Current user is: " + firebaseAuth.getCurrentUser().getUid());
+                    Log.i(TAG, "Current user is: " + firebaseAuth.getCurrentUser().getEmail());
                     //Toast.makeText(FirebaseService.this, "Current user is: " + firebaseAuth.getCurrentUser().getUid(), Toast.LENGTH_SHORT).show();
                 } else {
                     Log.i(TAG, "User logged out. Service will stop self.");
@@ -111,7 +112,7 @@ public class FirebaseService extends Service {
         User user = new User(name, streetName, zipCode, city, phone, email);
 
         Log.i(TAG, "Saving user in firestore database.");
-        mDatabase.child(FB_DB_USER).child(userId).setValue(user);
+        mDatabase.child(FB_DB_USER).child(encodeUserEmail(email)).setValue(user);
     }
 
     public boolean userHasDinnerClub() {
@@ -124,7 +125,7 @@ public class FirebaseService extends Service {
 
     private void dbLoadCurrentUser() {
         //Modified from https://firebase.google.com/docs/database/android/read-and-write
-        mDatabase.child(FB_DB_USER).child(mAuth.getUid()).addValueEventListener(new ValueEventListener() {
+        mDatabase.child(FB_DB_USER).child(encodeUserEmail(mAuth.getCurrentUser().getEmail())).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUser = dataSnapshot.getValue(User.class);

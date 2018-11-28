@@ -9,6 +9,7 @@ public class User {
     private long phone;
     private String email;
     private String dinnerClub;
+    private String clubInvitation;
 
     public User() {
     }
@@ -86,5 +87,13 @@ public class User {
 
     public void setDinnerClub(String dinnerClub) {
         this.dinnerClub = dinnerClub;
+    }
+
+    public String getClubInvitation() {
+        return clubInvitation;
+    }
+
+    public void setClubInvitation(String clubInvitation) {
+        this.clubInvitation = clubInvitation;
     }
 }
