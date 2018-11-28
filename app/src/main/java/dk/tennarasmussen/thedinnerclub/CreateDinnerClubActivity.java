@@ -1,11 +1,16 @@
 package dk.tennarasmussen.thedinnerclub;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,6 +33,8 @@ import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
 public class CreateDinnerClubActivity extends AppCompatActivity {
 
 
+    //variables
+    private String mDCName;
     //Views
     private Button btnLogOut;
     private Button btnCreateClub;
@@ -78,9 +85,40 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
     }
 
     public void createDinnerClub(){
+
+        //Alert dialog code modified from https://stackoverflow.com/questions/10903754/input-text-dialog-android
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        builder.setTitle(R.string.create_dc_dialog_title);
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        input.setTextColor(Color.BLACK);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(!input.getText().toString().trim().isEmpty()) {
+                    mDCName = input.getText().toString();
+                    createDinnerClubInDB(mDCName);
+                } else {
+                    Toast.makeText(CreateDinnerClubActivity.this, R.string.no_input_error_string, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        builder.show();
+    }
+
+    private void createDinnerClubInDB(String dcName) {
+        //Create new dinner club in firebase db with current user as member
         FirebaseUser curUser = mAuth.getCurrentUser();
         String key = mDatabase.child(FB_DB_USER).child(curUser.getUid()).child(FB_DB_DINNER_CLUB).push().getKey();
-        DinnerClub dinnerClub = new DinnerClub(key, "Dyrene i Zoo");
+        DinnerClub dinnerClub = new DinnerClub(key, mDCName);
         dinnerClub.members.put(curUser.getUid(), true);
         Map<String, Object> clubValues = dinnerClub.toMap();
 
@@ -97,9 +135,8 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(CreateDinnerClubActivity.this, "Creating Dinner Club Failure", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateDinnerClubActivity.this, "Creating Dinner Club Failure" + e.toString() , Toast.LENGTH_SHORT).show();
                     }
                 });
-
     }
 }

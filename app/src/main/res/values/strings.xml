@@ -15,4 +15,8 @@
     <string name="zip_hint">Zip code</string>
     <string name="notification_title">Dinner Club Service</string>
     <string name="notification_text">The Dinner Club Service is keeping you updated with new dinners and other changes from your dinner club friends.</string>
+    <string name="create_dc_dialog_title">Enter the name of your dinner club</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_input_error_string">Dinner club not created. You must provide a name.</string>
 </resources>
