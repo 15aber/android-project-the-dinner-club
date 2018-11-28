@@ -8,7 +8,7 @@ public class User {
     private String city;
     private long phone;
     private String email;
-    private String dinnerClubId;
+    private String dinnerClub;
 
     public User() {
     }
@@ -20,6 +20,16 @@ public class User {
         this.city = city;
         this.phone = phone;
         this.email = email;
+    }
+
+    public User(String name, String streetName, String zipCode, String city, long phone, String email, String dinnerClub) {
+        this.name = name;
+        this.streetName = streetName;
+        this.zipCode = zipCode;
+        this.city = city;
+        this.phone = phone;
+        this.email = email;
+        this.dinnerClub = dinnerClub;
     }
 
     public String getName() {
@@ -70,11 +80,11 @@ public class User {
         this.email = email;
     }
 
-    public String getDinnerClubId() {
-        return dinnerClubId;
+    public String getDinnerClub() {
+        return dinnerClub;
     }
 
-    public void setDinnerClubId(String dinnerClubId) {
-        this.dinnerClubId = dinnerClubId;
+    public void setDinnerClub(String dinnerClub) {
+        this.dinnerClub = dinnerClub;
     }
 }
