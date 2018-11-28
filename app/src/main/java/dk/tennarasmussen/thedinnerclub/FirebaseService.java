@@ -8,6 +8,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
 import static dk.tennarasmussen.thedinnerclub.BaseApplication.CHANNEL_ID;
+import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_USER_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUBS;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
 import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_REQUEST;
@@ -52,6 +54,7 @@ public class FirebaseService extends Service {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser() != null) {
+                    Log.i(TAG, "Current user is: " + firebaseAuth.getCurrentUser().getUid());
                     //Toast.makeText(FirebaseService.this, "Current user is: " + firebaseAuth.getCurrentUser().getUid(), Toast.LENGTH_SHORT).show();
                 } else {
                     Log.i(TAG, "User logged out. Service will stop self.");
@@ -115,7 +118,7 @@ public class FirebaseService extends Service {
         return false;
     }
 
-    private User getCurrentUser() {
+    public User getCurrentUser() {
         return currentUser;
     }
 
@@ -129,6 +132,10 @@ public class FirebaseService extends Service {
                 Toast.makeText(FirebaseService.this, "Loaded user: " + currentUser.getName(), Toast.LENGTH_SHORT).show();
 
                 dbLoadDinnerClubOfCurUser();
+
+                Intent broadcastIntent = new Intent();
+                broadcastIntent.setAction(BROADCAST_USER_UPDATED);
+                LocalBroadcastManager.getInstance(FirebaseService.this).sendBroadcast(broadcastIntent);
             }
 
             @Override

@@ -45,9 +45,9 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText etZip;
     private EditText etCity;
     private Button btnRegister;
+    private Button btnCancel;
 
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
     FirebaseService mService;
     boolean mBound = false;
 
@@ -64,6 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
         etZip = findViewById(R.id.etRegisterZip);
         etCity = findViewById(R.id.etRegisterCity);
         btnRegister = findViewById(R.id.btnRegisterRegister);
+        btnCancel = findViewById(R.id.btnRegisterCancel);
 
         if (savedInstanceState != null) {
             etEmail.setText(savedInstanceState.getString(LOGIN_EMAIL));
@@ -87,19 +88,14 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
+        btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser() != null) {
-                    //When logged in start service to get newest data
-                    Intent firebaseServiceIntent = new Intent(RegisterActivity.this.getApplicationContext(), FirebaseService.class);
-                    startService(firebaseServiceIntent);
-
-                    //When logged in goto createDinnerClubActivity
-                    startActivity(new Intent(RegisterActivity.this, CreateDinnerClubActivity.class));
-                }
+            public void onClick(View v) {
+                Intent replyIntent = new Intent();
+                setResult(RESULT_CANCELED, replyIntent);
+                finish();
             }
-        };
+        });
 
         mAuth = FirebaseAuth.getInstance();
     }
@@ -107,7 +103,6 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
 
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -169,13 +164,14 @@ public class RegisterActivity extends AppCompatActivity {
                                 } else {
                                     Log.i(TAG, "Couldn't add user to database, since not bound to service.");
                                 }
-
+                                Intent replyIntent = new Intent();
+                                setResult(RESULT_OK, replyIntent);
+                                finish();
                             } else {
-                                // If sign in fails, display a message to the user.
+                                // If create in fails, display a message to the user.
                                 Log.i(TAG, "createUserWithEmail:failure", task.getException());
                                 Toast.makeText(RegisterActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
-                                //updateUI(null);
                             }
 
                             // ...

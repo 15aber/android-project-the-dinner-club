@@ -13,6 +13,8 @@ public interface Constants {
     String REGISTER_ZIP = "dk.tennarasmussen.thedinnerclub.REGISTER_ZIP";
     String REGISTER_CITY = "dk.tennarasmussen.thedinnerclub.REGISTER_CITY";
 
+    String BROADCAST_USER_UPDATED = "dk.tennarasmussen.thedinnerclub.BROADCAST_USER_UPDATED";
+
     int REGISTER_REQUEST = 1;
     int LOGIN_REQUEST = 2;
 

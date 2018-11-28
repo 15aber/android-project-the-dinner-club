@@ -1,5 +1,8 @@
 package dk.tennarasmussen.thedinnerclub;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -58,6 +61,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     //When logged in go to createDinnerClubActivity
                     startActivity(new Intent(LoginActivity.this, CreateDinnerClubActivity.class));
+
+                    finish();
                 }
             }
         };
@@ -88,10 +93,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
     }
 
     private void RegisterUserDetails() {
@@ -137,7 +138,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
     public boolean validateInput() {
         boolean valid = true;
         //If email input is null or empty
@@ -162,5 +162,15 @@ public class LoginActivity extends AppCompatActivity {
         outState.putString(LOGIN_EMAIL, etEmail.getText().toString());
         outState.putString(LOGIN_PASS, etPassword.getText().toString());
         super.onSaveInstanceState(outState);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REGISTER_REQUEST && resultCode == RESULT_OK) {
+            Log.i(TAG, "onActivityResult: Register request returned RESULT_OK.");
+        } else if (requestCode == REGISTER_REQUEST && resultCode != RESULT_OK){
+            Toast.makeText(this, R.string.cancelled_string, Toast.LENGTH_SHORT).show();
+        }
     }
 }

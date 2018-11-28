@@ -1,16 +1,25 @@
 package dk.tennarasmussen.thedinnerclub;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -26,6 +35,7 @@ import java.util.Map;
 import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
+import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_USER_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUB;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUBS;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
@@ -33,16 +43,23 @@ import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
 public class CreateDinnerClubActivity extends AppCompatActivity {
 
 
+    private String TAG = "CreateDinnerClubActivity";
+
     //variables
     private String mDCName;
+    User curUser;
+
     //Views
     private Button btnLogOut;
     private Button btnCreateClub;
+    private TextView tvLoadingUser;
+    private TextView tvLoadingDC;
 
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
-
     private DatabaseReference mDatabase;
+    private FirebaseService mService;
+    private boolean mBound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +73,7 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser() == null) {
                     startActivity(new Intent(CreateDinnerClubActivity.this, LoginActivity.class));
+                    finish();
                 }
             }
         };
@@ -68,6 +86,10 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
             }
         });
 
+        tvLoadingUser = findViewById(R.id.tv_loading_user);
+        tvLoadingDC = findViewById(R.id.tv_loading_dc);
+        tvLoadingDC.setVisibility(View.GONE);
+
         btnCreateClub = findViewById(R.id.btn_cdc_create);
         btnCreateClub.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,6 +97,9 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
                 createDinnerClub();
             }
         });
+        btnCreateClub.setVisibility(View.GONE);
+
+
     }
 
     @Override
@@ -82,6 +107,13 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        // Bind to LocalService
+        Intent intent = new Intent(this.getApplicationContext(), FirebaseService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BROADCAST_USER_UPDATED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult,filter);
     }
 
     public void createDinnerClub(){
@@ -104,6 +136,8 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
                 if(!input.getText().toString().trim().isEmpty()) {
                     mDCName = input.getText().toString();
                     createDinnerClubInDB(mDCName);
+                    btnCreateClub.setVisibility(View.GONE);
+                    tvLoadingDC.setVisibility(View.VISIBLE);
                 } else {
                     Toast.makeText(CreateDinnerClubActivity.this, R.string.no_input_error_string, Toast.LENGTH_SHORT).show();
                 }
@@ -130,13 +164,66 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 Toast.makeText(CreateDinnerClubActivity.this, "Creating Dinner Club Success!!", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "Creating dinner club success!");
             }
         })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(CreateDinnerClubActivity.this, "Creating Dinner Club Failure" + e.toString() , Toast.LENGTH_SHORT).show();
+                        tvLoadingDC.setVisibility(View.GONE);
+                        btnCreateClub.setVisibility(View.VISIBLE);
+                        Toast.makeText(CreateDinnerClubActivity.this, R.string.create_failure_string , Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "Creating dinner club failure " + e.toString());
                     }
                 });
+    }
+
+
+    //Modified from https://developer.android.com/guide/components/bound-services#java
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            FirebaseService.LocalBinder binder = (FirebaseService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+            curUser = mService.getCurrentUser();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+    //define broadcast receiver for (local) broadcasts.
+    private BroadcastReceiver onBackgroundServiceResult = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Broadcast received from service");
+            if(mBound) {
+                curUser = mService.getCurrentUser();
+                //If user has a dinner club, go to home activity
+                if(curUser != null && curUser.getDinnerClub() != null) {
+                    startActivity(new Intent(CreateDinnerClubActivity.this, DinnerClubHomeActivity.class));
+                    finish();
+                }
+                if(curUser != null && curUser.getDinnerClub() == null) {
+                    tvLoadingUser.setVisibility(View.GONE);
+                    btnCreateClub.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        unbindService(mConnection);
+        mBound = false;
     }
 }
