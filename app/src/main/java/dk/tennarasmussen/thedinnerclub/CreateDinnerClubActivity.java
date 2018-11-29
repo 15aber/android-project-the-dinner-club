@@ -244,6 +244,7 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
             builder.setTitle(R.string.club_inv_title);
             builder.setMessage(mClubInvitation.senderName + getText(R.string.invite_text).toString() + mClubInvitation.dinnerClubName + getText(R.string.will_u_join_string).toString());
+            builder.setCancelable(false);
 
             // Set up the buttons
             builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
