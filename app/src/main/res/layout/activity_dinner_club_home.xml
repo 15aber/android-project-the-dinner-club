@@ -44,9 +44,11 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvClubName"
-            android:layout_width="match_parent"
+            android:id="@+id/tvHomeClubName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingVertical="16dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:typeface="normal" />
 

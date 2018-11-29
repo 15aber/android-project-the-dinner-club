@@ -16,9 +16,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+
+import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 
 import static dk.tennarasmussen.thedinnerclub.EmailEncoder.encodeUserEmail;
 
@@ -26,8 +29,13 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
 
     private static final String TAG = "DinnerClubHomeActivity";
 
+    //Variables
+    private DinnerClub mDinnerClub;
+
+    //Views
     private Button btnLogout;
     private Button btnAddMember;
+    private TextView tvClubName;
 
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
@@ -57,6 +65,7 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
             }
         });
 
+        tvClubName = findViewById(R.id.tvHomeClubName);
 
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -97,6 +106,9 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
             FirebaseService.LocalBinder binder = (FirebaseService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
+
+            mDinnerClub = mService.getCurUserDinnerClub();
+            tvClubName.setText(mDinnerClub.clubName);
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {

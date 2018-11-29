@@ -152,6 +152,10 @@ public class FirebaseService extends Service {
 
     public ClubInvitation getClubInvitation() { return curUserDCInv; }
 
+    public DinnerClub getCurUserDinnerClub() {
+        return curUserDinnerClub;
+    }
+
     private void dbLoadCurrentUser() {
         //Modified from https://firebase.google.com/docs/database/android/read-and-write
         mDatabase.child(FB_DB_USER).child(encodeUserEmail(mAuth.getCurrentUser().getEmail())).addValueEventListener(new ValueEventListener() {
