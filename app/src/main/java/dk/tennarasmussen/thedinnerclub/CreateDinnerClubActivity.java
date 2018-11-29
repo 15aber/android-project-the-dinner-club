@@ -251,6 +251,9 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Toast.makeText(CreateDinnerClubActivity.this, "Not joining club!", Toast.LENGTH_SHORT).show();
+                    if(mBound){
+                        mService.rejectDinnerClubInvitation();
+                    }
                 }
             });
             builder.setPositiveButton(R.string.join, new DialogInterface.OnClickListener() {

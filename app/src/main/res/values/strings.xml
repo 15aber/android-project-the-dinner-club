@@ -40,4 +40,5 @@
     <string name="will_u_join_string">. Do you wish to join?</string>
     <string name="join">Join</string>
     <string name="no">No</string>
+    <string name="invitation_not_deleted_string">Error: The invitation was not deleted.</string>
 </resources>

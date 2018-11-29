@@ -134,6 +134,11 @@ public class FirebaseService extends Service {
         mDatabase.child(FB_DB_USER).child(encodeUserEmail(email)).setValue(user);
     }
 
+    public void rejectDinnerClubInvitation() {
+        Log.i(TAG, "Reject dinner club invitation.");
+        dbRemoveDinnerClubInvitation();
+    }
+
     public boolean userHasDinnerClub() {
         return false;
     }
@@ -283,6 +288,30 @@ public class FirebaseService extends Service {
                         public void onFailure(@NonNull Exception e) {
                             Toast.makeText(FirebaseService.this, getText(R.string.invitation_not_sent_string).toString() , Toast.LENGTH_SHORT).show();
                             Log.i(TAG, "Creating dinner club invitation failure " + e.toString());
+                        }
+                    });
+        }
+    }
+
+    private void dbRemoveDinnerClubInvitation(){
+        if(currentUser!=null && curUserDCInv!=null) {
+            //delete dinner club invitation and all references
+            Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put("/" + FB_DB_USER + "/" + encodeUserEmail(currentUser.getEmail()) + "/" + FB_DB_CLUB_INVITATION, null);
+            childUpdates.put("/" + FB_DB_CLUB_INVITATIONS + "/" + currentUser.getClubInvitation(), null);
+            childUpdates.put("/" + FB_DB_DINNER_CLUBS + "/" + curUserDCInv.dinnerClubId + "/" + "members" + "/" + curUserDCInv.recipientId, null);
+
+            mDatabase.updateChildren(childUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.i(TAG, "Deleting dinner club invitation success!");
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(FirebaseService.this, getText(R.string.invitation_not_deleted_string).toString() , Toast.LENGTH_SHORT).show();
+                            Log.i(TAG, "Deleting dinner club invitation failure " + e.toString());
                         }
                     });
         }
