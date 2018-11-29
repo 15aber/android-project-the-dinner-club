@@ -10,24 +10,36 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import dk.tennarasmussen.thedinnerclub.Model.ClubInvitation;
 import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
 import static dk.tennarasmussen.thedinnerclub.BaseApplication.CHANNEL_ID;
 import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_USER_UPDATED;
+import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_CLUB_INVITATION;
+import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_CLUB_INVITATIONS;
+import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUB;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUBS;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
 import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_REQUEST;
 import static dk.tennarasmussen.thedinnerclub.Constants.NOTIFY_ID;
+import static dk.tennarasmussen.thedinnerclub.EmailEncoder.decodeUserEmail;
 import static dk.tennarasmussen.thedinnerclub.EmailEncoder.encodeUserEmail;
 
 public class FirebaseService extends Service {
@@ -96,7 +108,12 @@ public class FirebaseService extends Service {
         Log.i(TAG, "OnDestroy. Byebye Service.");
     }
 
-    public class LocalBinder extends Binder {
+    public void inviteMember(String emailId) {
+        String id = encodeUserEmail(emailId);
+        dbIfFriendExistsSendInvitation(id);
+    }
+
+    class LocalBinder extends Binder {
         FirebaseService getService() {
             // Return this instance of LocalService so clients can call public methods
             return FirebaseService.this;
@@ -165,5 +182,80 @@ public class FirebaseService extends Service {
         } else {
             Log.i(TAG, "Current user does not have a dinner club.");
         }
+    }
+
+    private void dbIfFriendExistsSendInvitation(final String emailId) {
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(decodeUserEmail(emailId)).matches()) {
+            //Modified from https://firebase.google.com/docs/database/android/read-and-write
+            final String friendId = encodeUserEmail(emailId);
+            mDatabase.child(FB_DB_USER).child(friendId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    //If the user exists
+                    if(dataSnapshot.exists()) {
+                        User friend = dataSnapshot.getValue(User.class);
+                        Log.i(TAG, "Successfully loaded friend " + friend.getName() + " from db.");
+                        if(friend.getDinnerClub() == null || friend.getDinnerClub().isEmpty()) {
+                            Log.i(TAG, friend.getName() + " has no dinnerclub. Sending invitation.");
+                            dbSendMemberInvitation(friend);
+
+                        } else {
+                            Log.i(TAG, friend.getName() + " already has a dinnerclub. No invitation sent.");
+                            Toast.makeText(FirebaseService.this, friend.getName() + getText(R.string.has_club_inv_not_sent_string).toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.i(TAG, decodeUserEmail(emailId) + " is not a Dinner Club user. No invitation sent.");
+                        Toast.makeText(FirebaseService.this, decodeUserEmail(emailId) + getText(R.string.user_not_exist).toString(), Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "load friend:onCancelled", databaseError.toException());
+                }
+            });
+        } else {
+            Log.i(TAG, "The email is not a valid email.");
+        }
+    }
+
+    private void dbSendMemberInvitation(final User friend) {
+        //Create new dinner club invitation in firebase db
+        if(currentUser!=null && curUserDinnerClub!=null) {
+            String key = mDatabase.child(FB_DB_USER).child(encodeUserEmail(friend.getEmail())).child(FB_DB_CLUB_INVITATION).push().getKey();
+
+            ClubInvitation clubInvitation = new ClubInvitation(
+                    encodeUserEmail(friend.getEmail()),
+                    encodeUserEmail(currentUser.getEmail()),
+                    curUserDinnerClub.clubId,
+                    currentUser.getName(),
+                    curUserDinnerClub.clubName);
+
+            curUserDinnerClub.members.put(encodeUserEmail(friend.getEmail()), false);
+
+            Map<String, Object> clubValues = curUserDinnerClub.toMap();
+
+            Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put("/" + FB_DB_USER + "/" + encodeUserEmail(friend.getEmail()) + "/" + FB_DB_CLUB_INVITATION, key);
+            childUpdates.put("/" + FB_DB_CLUB_INVITATIONS + "/" + key, clubInvitation);
+            childUpdates.put("/" + FB_DB_DINNER_CLUBS + "/" + curUserDinnerClub.clubId, clubValues);
+
+            mDatabase.updateChildren(childUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(FirebaseService.this, getText(R.string.invitation_sent_string).toString() + friend.getName(), Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Sending dinner club invitation success!");
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(FirebaseService.this, getText(R.string.invitation_not_sent_string).toString() , Toast.LENGTH_SHORT).show();
+                            Log.i(TAG, "Creating dinner club invitation failure " + e.toString());
+                        }
+                    });
+        }
+
     }
 }

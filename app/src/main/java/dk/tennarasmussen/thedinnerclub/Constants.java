@@ -4,6 +4,8 @@ public interface Constants {
     String FB_DB_USER = "users";
     String FB_DB_DINNER_CLUB = "dinnerClub";
     String FB_DB_DINNER_CLUBS = "dinnerClubs";
+    String FB_DB_CLUB_INVITATION = "clubInvitation";
+    String FB_DB_CLUB_INVITATIONS = "clubInvitations";
 
     String LOGIN_EMAIL = "dk.tennarasmussen.thedinnerclub.LOGIN_EMAIL";
     String LOGIN_PASS = "dk.tennarasmussen.thedinnerclub.LOGIN_PASS";
@@ -14,6 +16,7 @@ public interface Constants {
     String REGISTER_CITY = "dk.tennarasmussen.thedinnerclub.REGISTER_CITY";
 
     String BROADCAST_USER_UPDATED = "dk.tennarasmussen.thedinnerclub.BROADCAST_USER_UPDATED";
+    String BROADCAST_DINNER_CLUB_UPDATED = "dk.tennarasmussen.thedinnerclub.BROADCAST_DINNER_CLUB_UPDATED";
 
     int REGISTER_REQUEST = 1;
     int LOGIN_REQUEST = 2;
