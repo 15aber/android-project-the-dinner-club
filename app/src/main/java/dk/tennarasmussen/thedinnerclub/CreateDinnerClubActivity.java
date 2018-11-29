@@ -260,6 +260,9 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Toast.makeText(CreateDinnerClubActivity.this, "Joining " + mClubInvitation.dinnerClubName + "!", Toast.LENGTH_SHORT).show();
+                    if(mBound){
+                        mService.acceptDinnerClubInvitation();
+                    }
                 }
             });
 
