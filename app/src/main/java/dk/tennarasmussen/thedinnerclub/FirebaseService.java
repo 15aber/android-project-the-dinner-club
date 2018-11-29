@@ -31,6 +31,7 @@ import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
 import static dk.tennarasmussen.thedinnerclub.BaseApplication.CHANNEL_ID;
+import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_LOADED_DC_INVITATION;
 import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_USER_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_CLUB_INVITATION;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_CLUB_INVITATIONS;
@@ -50,6 +51,7 @@ public class FirebaseService extends Service {
 
     private User currentUser;
     private DinnerClub curUserDinnerClub;
+    private ClubInvitation curUserDCInv;
 
     private final IBinder mBinder = new LocalBinder();
     private FirebaseAuth mAuth;
@@ -140,6 +142,8 @@ public class FirebaseService extends Service {
         return currentUser;
     }
 
+    public ClubInvitation getClubInvitation() { return curUserDCInv; }
+
     private void dbLoadCurrentUser() {
         //Modified from https://firebase.google.com/docs/database/android/read-and-write
         mDatabase.child(FB_DB_USER).child(encodeUserEmail(mAuth.getCurrentUser().getEmail())).addValueEventListener(new ValueEventListener() {
@@ -150,6 +154,7 @@ public class FirebaseService extends Service {
                 Toast.makeText(FirebaseService.this, "Loaded user: " + currentUser.getName(), Toast.LENGTH_SHORT).show();
 
                 dbLoadDinnerClubOfCurUser();
+                dbLoadCurUserDCInvitation();
 
                 Intent broadcastIntent = new Intent();
                 broadcastIntent.setAction(BROADCAST_USER_UPDATED);
@@ -181,6 +186,31 @@ public class FirebaseService extends Service {
             });
         } else {
             Log.i(TAG, "Current user does not have a dinner club.");
+        }
+    }
+
+    private void dbLoadCurUserDCInvitation() {
+        if (currentUser.getDinnerClub() == null && currentUser.getClubInvitation() != null) {
+            //Modified from https://firebase.google.com/docs/database/android/read-and-write
+            mDatabase.child(FB_DB_CLUB_INVITATIONS).child(currentUser.getClubInvitation()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    curUserDCInv = dataSnapshot.getValue(ClubInvitation.class);
+                    Log.i(TAG, "Successfully loaded dinner club invitation from db.");
+                    Toast.makeText(FirebaseService.this, "Loaded dinner club invitation from " + curUserDCInv.senderName, Toast.LENGTH_SHORT).show();
+
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction(BROADCAST_LOADED_DC_INVITATION);
+                    LocalBroadcastManager.getInstance(FirebaseService.this).sendBroadcast(broadcastIntent);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "load Dinner Club invitation:onCancelled", databaseError.toException());
+                }
+            });
+        } else {
+            Log.i(TAG, "Current user does not have a dinner club invitation.");
         }
     }
 

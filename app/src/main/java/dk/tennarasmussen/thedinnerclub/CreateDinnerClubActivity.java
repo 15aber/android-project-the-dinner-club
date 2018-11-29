@@ -32,9 +32,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 import java.util.Map;
 
+import dk.tennarasmussen.thedinnerclub.Model.ClubInvitation;
 import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
+import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_LOADED_DC_INVITATION;
 import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_USER_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUB;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUBS;
@@ -48,13 +50,15 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
 
     //variables
     private String mDCName;
-    User curUser;
+    private User curUser;
+    private ClubInvitation mClubInvitation;
 
     //Views
     private Button btnLogOut;
     private Button btnCreateClub;
     private TextView tvLoadingUser;
     private TextView tvLoadingDC;
+    private TextView tvLoadingDCInv;
 
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
@@ -90,6 +94,8 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
         tvLoadingUser = findViewById(R.id.tv_loading_user);
         tvLoadingDC = findViewById(R.id.tv_loading_dc);
         tvLoadingDC.setVisibility(View.GONE);
+        tvLoadingDCInv = findViewById(R.id.tv_loading_dc_invitation);
+        tvLoadingDCInv.setVisibility(View.GONE);
 
         btnCreateClub = findViewById(R.id.btn_cdc_create);
         btnCreateClub.setOnClickListener(new View.OnClickListener() {
@@ -114,6 +120,7 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BROADCAST_USER_UPDATED);
+        filter.addAction(BROADCAST_LOADED_DC_INVITATION);
         LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult,filter);
     }
 
@@ -206,19 +213,56 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Broadcast received from service");
             if(mBound) {
-                curUser = mService.getCurrentUser();
-                //If user has a dinner club, go to home activity
-                if(curUser != null && curUser.getDinnerClub() != null) {
-                    startActivity(new Intent(CreateDinnerClubActivity.this, DinnerClubHomeActivity.class));
-                    finish();
+                if(intent.getAction().equals(BROADCAST_USER_UPDATED)) {
+                    curUser = mService.getCurrentUser();
+                    //If user has a dinner club, go to home activity
+                    if(curUser != null && curUser.getDinnerClub() != null) {
+                        startActivity(new Intent(CreateDinnerClubActivity.this, DinnerClubHomeActivity.class));
+                        finish();
+                    }
+                    if(curUser != null && curUser.getDinnerClub() == null && curUser.getClubInvitation() == null) {
+                        tvLoadingUser.setVisibility(View.GONE);
+                        btnCreateClub.setVisibility(View.VISIBLE);
+                    } else if(curUser != null && curUser.getDinnerClub() == null && curUser.getClubInvitation() != null){
+                        //If user has dinner club invitation
+                        tvLoadingUser.setVisibility(View.GONE);
+                        tvLoadingDCInv.setVisibility(View.VISIBLE);
+                    }
+                } else if (intent.getAction().equals(BROADCAST_LOADED_DC_INVITATION)) {
+                    mClubInvitation = mService.getClubInvitation();
+                    tvLoadingDCInv.setVisibility(View.GONE);
+                    showDinnerClubInvitation();
                 }
-                if(curUser != null && curUser.getDinnerClub() == null) {
-                    tvLoadingUser.setVisibility(View.GONE);
-                    btnCreateClub.setVisibility(View.VISIBLE);
-                }
+
             }
         }
     };
+
+    private void showDinnerClubInvitation() {
+        if(mClubInvitation!= null){
+            //Alert dialog code modified from https://stackoverflow.com/questions/10903754/input-text-dialog-android
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+            builder.setTitle(R.string.club_inv_title);
+            builder.setMessage(mClubInvitation.senderName + getText(R.string.invite_text).toString() + mClubInvitation.dinnerClubName + getText(R.string.will_u_join_string).toString());
+
+            // Set up the buttons
+            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(CreateDinnerClubActivity.this, "Not joining club!", Toast.LENGTH_SHORT).show();
+                }
+            });
+            builder.setPositiveButton(R.string.join, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(CreateDinnerClubActivity.this, "Joining " + mClubInvitation.dinnerClubName + "!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            builder.show();
+
+        }
+    }
 
     @Override
     protected void onStop() {

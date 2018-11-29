@@ -34,4 +34,10 @@
     <string name="invitation_sent_string">Dinner club invitation is sent to</string>
     <string name="invitation_not_sent_string">Error: the dinner club invitation was not sent.</string>
     <string name="user_not_exist">is not a Dinner Club user. Invitation not sent</string>
+    <string name="loading_dc_inv_string">Loading dinner club invitation</string>
+    <string name="club_inv_title">Dinner Club Invitation</string>
+    <string name="invite_text">invites you to join their dinner club:</string>
+    <string name="will_u_join_string">. Do you wish to join?</string>
+    <string name="join">Join</string>
+    <string name="no">No</string>
 </resources>

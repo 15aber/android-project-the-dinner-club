@@ -17,6 +17,7 @@ public interface Constants {
 
     String BROADCAST_USER_UPDATED = "dk.tennarasmussen.thedinnerclub.BROADCAST_USER_UPDATED";
     String BROADCAST_DINNER_CLUB_UPDATED = "dk.tennarasmussen.thedinnerclub.BROADCAST_DINNER_CLUB_UPDATED";
+    String BROADCAST_LOADED_DC_INVITATION = "dk.tennarasmussen.thedinnerclub.BROADCAST_LOADED_DC_INVITATION";
 
     int REGISTER_REQUEST = 1;
     int LOGIN_REQUEST = 2;
