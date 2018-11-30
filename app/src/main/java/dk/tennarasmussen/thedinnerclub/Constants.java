@@ -21,6 +21,7 @@ public interface Constants {
 
     int REGISTER_REQUEST = 1;
     int LOGIN_REQUEST = 2;
+    int NEW_DINNER_REQUEST = 3;
 
     int NOTIFY_ID = 142;
 }

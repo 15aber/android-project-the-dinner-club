@@ -41,4 +41,8 @@
     <string name="join">Join</string>
     <string name="no">No</string>
     <string name="invitation_not_deleted_string">Error: The invitation was not deleted.</string>
+    <string name="btn_create_dinner">New Dinner</string>
+    <string name="create_dinner_title">Create Dinner</string>
+    <string name="date_time_hint">Date and time (yyyy-MM-dd hh:mm)</string>
+    <string name="message_hint">Message...</string>
 </resources>

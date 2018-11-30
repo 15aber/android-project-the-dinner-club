@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 
+import static dk.tennarasmussen.thedinnerclub.Constants.NEW_DINNER_REQUEST;
 import static dk.tennarasmussen.thedinnerclub.EmailEncoder.encodeUserEmail;
 
 public class DinnerClubHomeActivity extends AppCompatActivity {
@@ -35,6 +36,7 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
     //Views
     private Button btnLogout;
     private Button btnAddMember;
+    private Button btnCreateDinner;
     private TextView tvClubName;
 
     FirebaseAuth mAuth;
@@ -54,6 +56,14 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mAuth.signOut();
+            }
+        });
+
+        btnCreateDinner = findViewById(R.id.btnHomeCreateDinner);
+        btnCreateDinner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createDinner();
             }
         });
 
@@ -77,6 +87,13 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
                 }
             }
         };
+    }
+
+    private void createDinner() {
+        // Modified from: https://developer.android.com/guide/components/activities/intro-activities.html
+        Intent intent = new Intent(this, CreateDinnerActivity.class);
+
+        startActivityForResult(intent, NEW_DINNER_REQUEST);
     }
 
     @Override
