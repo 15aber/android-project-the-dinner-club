@@ -177,4 +177,14 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
             Toast.makeText(DinnerClubHomeActivity.this, R.string.connection_error_string, Toast.LENGTH_SHORT).show();
         }
     }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == NEW_DINNER_REQUEST && resultCode == RESULT_OK) {
+            Log.i(TAG, "onActivityResult: New dinner request returned RESULT_OK.");
+        } else if (requestCode == NEW_DINNER_REQUEST && resultCode != RESULT_OK){
+            Toast.makeText(this, R.string.cancelled_string, Toast.LENGTH_SHORT).show();
+        }
+    }
 }

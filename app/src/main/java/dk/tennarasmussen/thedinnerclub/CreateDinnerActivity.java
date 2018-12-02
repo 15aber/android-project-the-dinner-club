@@ -186,6 +186,9 @@ public class CreateDinnerActivity extends AppCompatActivity {
 
             if(mBound) {
                 mService.createDinnner(timeStamp, etMessage.getText().toString().trim());
+                Intent replyIntent = new Intent();
+                setResult(RESULT_OK, replyIntent);
+                finish();
             } else {
                 Log.i(TAG, "Error, Dinner not created, not bound to Service.");
                 Toast.makeText(this, R.string.create_error_string, Toast.LENGTH_SHORT).show();
