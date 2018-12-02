@@ -1,13 +1,18 @@
 package dk.tennarasmussen.thedinnerclub.Model;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Dinner {
-    private String dateTime;
+    private long dateTime;
     private String host;
     private String comment;
+    public Map<String, Boolean> guests = new HashMap<>();
 
-    public Dinner(String dateTime, String host, String comment) {
+    public Dinner(long dateTime, String host, String comment) {
         this.dateTime = dateTime;
         this.host = host;
         this.comment = comment;
@@ -16,11 +21,22 @@ public class Dinner {
     public Dinner() {
     }
 
-    public String getDateTime() {
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("dateTime", dateTime);
+        result.put("host", host);
+        result.put("comment", comment);
+        result.put("guests", guests);
+
+        return result;
+    }
+
+    public long getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(String dateTime) {
+    public void setDateTime(long dateTime) {
         this.dateTime = dateTime;
     }
 

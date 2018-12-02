@@ -21,10 +21,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
 import dk.tennarasmussen.thedinnerclub.Model.ClubInvitation;
+import dk.tennarasmussen.thedinnerclub.Model.Dinner;
 import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
@@ -33,6 +35,7 @@ import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_LOADED_DC_INVI
 import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_USER_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_CLUB_INVITATION;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_CLUB_INVITATIONS;
+import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNERS;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUB;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_DINNER_CLUBS;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_USER;
@@ -111,6 +114,10 @@ public class FirebaseService extends Service {
     public void inviteMember(String emailId) {
         String id = encodeUserEmail(emailId);
         dbIfFriendExistsSendInvitation(id);
+    }
+
+    public void createDinnner(long timeStamp, String message) {
+        dbCreateDinner(timeStamp, message);
     }
 
     class LocalBinder extends Binder {
@@ -345,6 +352,37 @@ public class FirebaseService extends Service {
                         public void onFailure(@NonNull Exception e) {
                             Toast.makeText(FirebaseService.this, getText(R.string.invitation_not_deleted_string).toString() , Toast.LENGTH_SHORT).show();
                             Log.i(TAG, "Deleting dinner club invitation failure " + e.toString());
+                        }
+                    });
+        }
+    }
+
+    private void dbCreateDinner(long timeStamp, String message) {
+        if(currentUser!=null && curUserDinnerClub!=null) {
+            String key = mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).push().getKey();
+
+            //Add user to dinner club and then delete dinner club invitation and all references
+            Dinner dinner = new Dinner(timeStamp, encodeUserEmail(currentUser.getEmail()), message);
+            Map<String, Boolean> guests = curUserDinnerClub.members;
+            guests.remove(encodeUserEmail(currentUser.getEmail()));
+            dinner.guests = guests;
+            Map<String, Object> dinnerValues = dinner.toMap();
+
+            Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put("/" + FB_DB_DINNERS + "/" + currentUser.getDinnerClub() + "/" + key, dinnerValues);
+
+            mDatabase.updateChildren(childUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.i(TAG, "Creating dinner success!");
+                    Toast.makeText(FirebaseService.this, getText(R.string.dinner_created_string).toString() , Toast.LENGTH_SHORT).show();
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(FirebaseService.this, getText(R.string.dinner_not_created_string).toString() , Toast.LENGTH_SHORT).show();
+                            Log.i(TAG, "Creating dinner failure " + e.toString());
                         }
                     });
         }
