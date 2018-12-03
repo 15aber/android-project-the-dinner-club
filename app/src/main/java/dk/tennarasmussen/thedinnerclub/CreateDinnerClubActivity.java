@@ -59,6 +59,7 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
     private TextView tvLoadingUser;
     private TextView tvLoadingDC;
     private TextView tvLoadingDCInv;
+    private AlertDialog alertDialog;
 
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
@@ -152,7 +153,7 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
 
             }
         });
-
+        AlertDialog alertDialog = builder.create();
         builder.show();
     }
 
@@ -284,19 +285,31 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     Toast.makeText(CreateDinnerClubActivity.this, "Joining " + mClubInvitation.dinnerClubName + "!", Toast.LENGTH_SHORT).show();
                     if(mBound){
+                        if (alertDialog != null && alertDialog.isShowing()) {
+                            alertDialog.dismiss();
+                        }
                         mService.acceptDinnerClubInvitation();
                     }
                 }
             });
+            alertDialog = builder.create();
+            alertDialog.show();
+        }
+    }
 
-            builder.show();
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+
+        LocalBroadcastManager.getInstance(CreateDinnerClubActivity.this).unregisterReceiver(onBackgroundServiceResult);
 
         unbindService(mConnection);
         mBound = false;
