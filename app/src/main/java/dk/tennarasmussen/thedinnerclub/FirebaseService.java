@@ -136,7 +136,20 @@ public class FirebaseService extends Service {
         User user = new User(name, streetName, zipCode, city, phone, email);
 
         Log.i(TAG, "Saving user in firestore database.");
-        mDatabase.child(FB_DB_USER).child(encodeUserEmail(email)).setValue(user);
+        mDatabase.child(FB_DB_USER).child(encodeUserEmail(email)).setValue(user).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                //If userdata cannot be saved in realtime db, delete firebase user.
+                Log.i(TAG, "User data couldn't be saved to db, firebase user is deleted.");
+                mAuth.getCurrentUser().delete();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.i(TAG, "Firebase user is created and user data stored in database successfully.");
+                Toast.makeText(FirebaseService.this, "Register successful", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void acceptDinnerClubInvitation() {
