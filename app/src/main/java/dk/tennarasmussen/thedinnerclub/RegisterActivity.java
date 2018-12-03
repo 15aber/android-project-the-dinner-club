@@ -153,14 +153,19 @@ public class RegisterActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.i(TAG, "createUserWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                Toast.makeText(RegisterActivity.this, "Register successful", Toast.LENGTH_SHORT).show();
                                 if(mBound){
+                                    long phone;
+                                    if(etPhone.getText().toString().isEmpty()) {
+                                        phone = 0;
+                                    } else {
+                                        phone = Long.parseLong(etPhone.getText().toString());
+                                    }
                                     mService.writeNewUser(user.getUid(),
                                             etName.getText().toString(),
                                             etStreet.getText().toString(),
                                             etZip.getText().toString(),
                                             etCity.getText().toString(),
-                                            Long.parseLong(etPhone.getText().toString()),
+                                            phone,
                                             user.getEmail());
                                 } else {
                                     Log.i(TAG, "Couldn't add user to database, since not bound to service.");
