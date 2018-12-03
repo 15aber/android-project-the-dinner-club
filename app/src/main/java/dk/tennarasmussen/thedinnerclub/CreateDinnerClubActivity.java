@@ -199,6 +199,29 @@ public class CreateDinnerClubActivity extends AppCompatActivity {
             mService = binder.getService();
             mBound = true;
             curUser = mService.getCurrentUser();
+            mClubInvitation = mService.getClubInvitation();
+
+            if (curUser != null) {
+                //If user has a dinner club, go to home activity
+                if(curUser != null && curUser.getDinnerClub() != null) {
+                    startActivity(new Intent(CreateDinnerClubActivity.this, DinnerClubHomeActivity.class));
+                    finish();
+                }
+                //If user has no dinner club and no invitation
+                if(curUser != null && curUser.getDinnerClub() == null && curUser.getClubInvitation() == null) {
+                    tvLoadingUser.setVisibility(View.GONE);
+                    btnCreateClub.setVisibility(View.VISIBLE);
+                } else if(curUser != null && curUser.getDinnerClub() == null && curUser.getClubInvitation() != null && mClubInvitation==null){
+                    //If user has dinner club invitation, but it has not been loaded
+                    tvLoadingUser.setVisibility(View.GONE);
+                    tvLoadingDCInv.setVisibility(View.VISIBLE);
+                } else if(curUser != null && curUser.getDinnerClub() == null && curUser.getClubInvitation() != null && mClubInvitation!=null) {
+                    //If user has dinner club invitation, and it has been loaded
+                    mClubInvitation = mService.getClubInvitation();
+                    tvLoadingDCInv.setVisibility(View.GONE);
+                    showDinnerClubInvitation();
+                }
+            }
         }
 
         @Override
