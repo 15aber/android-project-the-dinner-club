@@ -11,6 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +23,11 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import dk.tennarasmussen.thedinnerclub.Model.Dinner;
 import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 
 import static dk.tennarasmussen.thedinnerclub.Constants.NEW_DINNER_REQUEST;
@@ -32,6 +39,7 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
 
     //Variables
     private DinnerClub mDinnerClub;
+    private ArrayList<Dinner> mDinners = new ArrayList<>();
 
     //Views
     private Button btnLogout;
@@ -48,6 +56,22 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dinner_club_home);
+        Log.i(TAG, "onCreate: Started");
+
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Maja", "Let's eat!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Nanna", "Let's eat some more!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Simone", "Let's eat!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Andreas", "Let's eat!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Tenna", "Let's eat!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Josefine", "Let's eat!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Maja", "Let's eat some more!!!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Nanna", "Let's eat some more!!!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Simone", "Let's eat some more!!!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Andreas", "Let's eat some more!!!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Tenna", "Let's eat some more!!!!"));
+        mDinners.add(new Dinner(System.currentTimeMillis(), "Josefine", "Let's eat some more!!!!"));
+
+        initRecyclerView();
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -87,6 +111,14 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
                 }
             }
         };
+    }
+
+    private void initRecyclerView() {
+        Log.i(TAG, "initRecyclerView: init recyclerview");
+        RecyclerView recyclerView = findViewById(R.id.homeRecyclerView);
+        DinnersAdapter adapter = new DinnersAdapter(mDinners, this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void createDinner() {

@@ -48,4 +48,5 @@
     <string name="create_error_string">Error, dinner NOT created.</string>
     <string name="dinner_created_string">Dinner is created</string>
     <string name="dinner_not_created_string">Error, dinner was not created.</string>
+    <string name="dinneritem_dinner_at">Dinner at</string>
 </resources>
