@@ -78,6 +78,9 @@ public class FirebaseService extends Service {
                 }
             }
         };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
@@ -97,11 +100,9 @@ public class FirebaseService extends Service {
                 .build();
 
         startForeground(NOTIFY_ID, notification);
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mAuth.addAuthStateListener(mAuthListener);
-        dbLoadCurrentUser();
-
+        if (mAuth.getCurrentUser()!=null) {
+            dbLoadCurrentUser();
+        }
         return START_STICKY;
     }
 
@@ -129,28 +130,37 @@ public class FirebaseService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        if (mDatabase == null) {
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+        }
         return mBinder;
     }
 
     public void writeNewUser(String userId, String name, String streetName, String zipCode, String city, long phone, String email) {
         User user = new User(name, streetName, zipCode, city, phone, email);
 
-        Log.i(TAG, "Saving user in firestore database.");
-        mDatabase.child(FB_DB_USER).child(encodeUserEmail(email)).setValue(user).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                //If userdata cannot be saved in realtime db, delete firebase user.
-                Log.i(TAG, "User data couldn't be saved to db, firebase user is deleted.");
-                mAuth.getCurrentUser().delete();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.i(TAG, "Firebase user is created and user data stored in database successfully.");
-                Toast.makeText(FirebaseService.this, "Register successful", Toast.LENGTH_SHORT).show();
-                dbLoadCurrentUser();
-            }
-        });
+        if (mDatabase!= null) {
+            Log.i(TAG, "Saving user in firestore database.");
+            mDatabase.child(FB_DB_USER).child(encodeUserEmail(email)).setValue(user).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //If userdata cannot be saved in realtime db, delete firebase user.
+                    Log.i(TAG, "User data couldn't be saved to db, firebase user is deleted.");
+                    mAuth.getCurrentUser().delete();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.i(TAG, "Firebase user is created and user data stored in database successfully.");
+                    Toast.makeText(FirebaseService.this, "Register successful", Toast.LENGTH_SHORT).show();
+                    dbLoadCurrentUser();
+                }
+            });
+        } else {
+            //If userdata cannot be saved in realtime db, delete firebase user.
+            Log.i(TAG, "User data couldn't be saved to db, firebase user is deleted.");
+            mAuth.getCurrentUser().delete();
+        }
     }
 
     public void acceptDinnerClubInvitation() {
@@ -179,26 +189,34 @@ public class FirebaseService extends Service {
 
     private void dbLoadCurrentUser() {
         //Modified from https://firebase.google.com/docs/database/android/read-and-write
-        mDatabase.child(FB_DB_USER).child(encodeUserEmail(mAuth.getCurrentUser().getEmail())).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                currentUser = dataSnapshot.getValue(User.class);
-                Log.i(TAG, "Successfully loaded user from db.");
-                Toast.makeText(FirebaseService.this, "Loaded user: " + currentUser.getName(), Toast.LENGTH_SHORT).show();
+        if(mAuth.getCurrentUser()!= null) {
+            mDatabase.child(FB_DB_USER).child(encodeUserEmail(mAuth.getCurrentUser().getEmail())).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    currentUser = dataSnapshot.getValue(User.class);
+                    if (currentUser!=null) {
+                        Log.i(TAG, "Successfully loaded user from db.");
+                        Toast.makeText(FirebaseService.this, "Loaded user: " + currentUser.getName(), Toast.LENGTH_SHORT).show();
 
-                dbLoadDinnerClubOfCurUser();
-                dbLoadCurUserDCInvitation();
+                        dbLoadDinnerClubOfCurUser();
+                        dbLoadCurUserDCInvitation();
 
-                Intent broadcastIntent = new Intent();
-                broadcastIntent.setAction(BROADCAST_USER_UPDATED);
-                LocalBroadcastManager.getInstance(FirebaseService.this).sendBroadcast(broadcastIntent);
-            }
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction(BROADCAST_USER_UPDATED);
+                        LocalBroadcastManager.getInstance(FirebaseService.this).sendBroadcast(broadcastIntent);
+                    } else {
+                        //User doesn't exist in database
+                        Log.i(TAG, "dbLoadCurrentUser: User, " + mAuth.getCurrentUser().getEmail() + ", doesn't exist in database.");
+                        mAuth.getCurrentUser().delete();
+                    }
+                }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.i(TAG, "load User:onCancelled", databaseError.toException());
-            }
-        });
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "load User:onCancelled", databaseError.toException());
+                }
+            });
+        }
     }
 
     private void dbLoadDinnerClubOfCurUser() {
