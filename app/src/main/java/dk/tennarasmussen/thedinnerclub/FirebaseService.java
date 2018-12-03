@@ -148,6 +148,7 @@ public class FirebaseService extends Service {
             public void onSuccess(Void aVoid) {
                 Log.i(TAG, "Firebase user is created and user data stored in database successfully.");
                 Toast.makeText(FirebaseService.this, "Register successful", Toast.LENGTH_SHORT).show();
+                dbLoadCurrentUser();
             }
         });
     }
