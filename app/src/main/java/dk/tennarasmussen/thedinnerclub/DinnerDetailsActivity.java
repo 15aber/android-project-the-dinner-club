@@ -11,6 +11,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,6 +47,7 @@ public class DinnerDetailsActivity extends AppCompatActivity {
     TextView tvPhone;
     TextView tvEmail;
     TextView tvMessage;
+    Button tvButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,13 @@ public class DinnerDetailsActivity extends AppCompatActivity {
         tvPhone = findViewById(R.id.tvDinnerDetailsPhone);
         tvEmail = findViewById(R.id.tvDinnerDetailsEmail);
         tvMessage = findViewById(R.id.tvDinnerDetailsMessage);
+        tvButton = findViewById(R.id.btnDinnerDetailsBack);
+        tvButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
     @Override
