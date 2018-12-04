@@ -1,13 +1,16 @@
 package dk.tennarasmussen.thedinnerclub;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +32,9 @@ import java.util.Calendar;
 
 import dk.tennarasmussen.thedinnerclub.Model.Dinner;
 import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
+import dk.tennarasmussen.thedinnerclub.Model.User;
 
+import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_DINNERS_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.NEW_DINNER_REQUEST;
 import static dk.tennarasmussen.thedinnerclub.EmailEncoder.encodeUserEmail;
 
@@ -38,6 +43,7 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
     private static final String TAG = "DinnerClubHomeActivity";
 
     //Variables
+    private User mUser;
     private DinnerClub mDinnerClub;
     private ArrayList<Dinner> mDinners = new ArrayList<>();
 
@@ -111,6 +117,13 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
                 }
             }
         };
+
+        // Bind to LocalService
+        Intent intent = new Intent(this, FirebaseService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BROADCAST_DINNERS_UPDATED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult,filter);
     }
 
     private void initRecyclerView() {
@@ -129,22 +142,15 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        // Bind to LocalService
-        Intent intent = new Intent(this, FirebaseService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         unbindService(mConnection);
         mBound = false;
+        LocalBroadcastManager.getInstance(DinnerClubHomeActivity.this).unregisterReceiver(onBackgroundServiceResult);
     }
 
-    //From https://developer.android.com/guide/components/bound-services
+
+//From https://developer.android.com/guide/components/bound-services
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -157,11 +163,33 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
             mBound = true;
 
             mDinnerClub = mService.getCurUserDinnerClub();
-            tvClubName.setText(mDinnerClub.clubName);
+            if (mDinnerClub!=null) {
+                tvClubName.setText(mDinnerClub.clubName);
+            }
+
+            mUser = mService.getCurrentUser();
+            mDinnerClub = mService.getCurUserDinnerClub();
+            mDinners = mService.getDinners();
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
+        }
+    };
+
+    //define broadcast receiver for (local) broadcasts.
+    private BroadcastReceiver onBackgroundServiceResult = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Broadcast received from service");
+            if(mBound) {
+                if(intent.getAction().equals(BROADCAST_DINNERS_UPDATED)) {
+                    mUser = mService.getCurrentUser();
+                    mDinnerClub = mService.getCurUserDinnerClub();
+                    mDinners = mService.getDinners();
+                }
+
+            }
         }
     };
 
@@ -209,6 +237,8 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
             Toast.makeText(DinnerClubHomeActivity.this, R.string.connection_error_string, Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
