@@ -250,7 +250,7 @@ public class FirebaseService extends Service {
     private void dbLoadDinners() {
         if (curUserDinnerClub != null) {
             //Modified from https://firebase.google.com/docs/database/android/read-and-write
-            mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).addValueEventListener(new ValueEventListener() {
+            mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).orderByChild("dateTime").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot!=null) {
