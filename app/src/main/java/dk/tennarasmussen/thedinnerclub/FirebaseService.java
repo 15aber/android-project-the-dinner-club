@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
 import static dk.tennarasmussen.thedinnerclub.BaseApplication.CHANNEL_ID;
+import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_DINNERS_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_LOADED_DC_INVITATION;
 import static dk.tennarasmussen.thedinnerclub.Constants.BROADCAST_USER_UPDATED;
 import static dk.tennarasmussen.thedinnerclub.Constants.FB_DB_CLUB_INVITATION;
@@ -54,6 +56,7 @@ public class FirebaseService extends Service {
     private User currentUser;
     private DinnerClub curUserDinnerClub;
     private ClubInvitation curUserDCInv;
+    private ArrayList<Dinner> mDinners = new ArrayList<>();
 
     private final IBinder mBinder = new LocalBinder();
     private FirebaseAuth mAuth;
@@ -188,6 +191,10 @@ public class FirebaseService extends Service {
         return curUserDinnerClub;
     }
 
+    public ArrayList<Dinner> getDinners() {
+        return mDinners;
+    }
+
     private void dbLoadCurrentUser() {
         //Modified from https://firebase.google.com/docs/database/android/read-and-write
         if(mAuth.getCurrentUser()!= null) {
@@ -229,6 +236,8 @@ public class FirebaseService extends Service {
                     curUserDinnerClub = dataSnapshot.getValue(DinnerClub.class);
                     Log.i(TAG, "Successfully loaded dinner club from db.");
                     Toast.makeText(FirebaseService.this, "Loaded dinner club: " + curUserDinnerClub.clubName, Toast.LENGTH_SHORT).show();
+
+                    dbLoadDinners();
                 }
 
                 @Override
@@ -238,6 +247,36 @@ public class FirebaseService extends Service {
             });
         } else {
             Log.i(TAG, "Current user does not have a dinner club.");
+        }
+    }
+
+    private void dbLoadDinners() {
+        if (curUserDinnerClub != null) {
+            //Modified from https://firebase.google.com/docs/database/android/read-and-write
+            mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot!=null) {
+                        Log.i(TAG, "Successfully loaded dinners from db.");
+                        for (DataSnapshot dinnerSnapShot : dataSnapshot.getChildren()) {
+                            Log.i(TAG, "Loaded dinner: " + dinnerSnapShot);
+                            mDinners.add(dinnerSnapShot.getValue(Dinner.class));
+                        }
+
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction(BROADCAST_DINNERS_UPDATED);
+                        LocalBroadcastManager.getInstance(FirebaseService.this).sendBroadcast(broadcastIntent);
+
+                    } else {
+                        Log.i(TAG, "onDataChange: No dinners in dinnerclub");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "load Dinners:onCancelled", databaseError.toException());
+                }
+            });
         }
     }
 
