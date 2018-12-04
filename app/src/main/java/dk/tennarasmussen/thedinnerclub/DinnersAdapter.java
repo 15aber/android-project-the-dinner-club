@@ -48,10 +48,19 @@ public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
         Log.i(TAG, "onBindViewHolder: called");
-        Glide.with(mContext)
-                .asBitmap()
-                .load("http://www.dinktoons.com/wp-content/uploads/2011/06/dinosaur-veggie.jpg")
-                .into(viewHolder.dinnerImage);
+
+        if(mDinnerList.get(i).getImageURL() != null)
+        {
+            Glide.with(mContext)
+                    .asBitmap()
+                    .load(mDinnerList.get(i).getImageURL())
+                    .into(viewHolder.dinnerImage);
+        } else {
+            Glide.with(mContext)
+                    .asBitmap()
+                    .load("http://www.dinktoons.com/wp-content/uploads/2011/06/dinosaur-veggie.jpg")
+                    .into(viewHolder.dinnerImage);
+        }
 
         viewHolder.dinnerHost.setText(mDinnerList.get(i).getHost().getName() + "'s");
         Date date = new Date(mDinnerList.get(i).getDateTime());

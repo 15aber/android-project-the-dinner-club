@@ -121,8 +121,8 @@ public class FirebaseService extends Service {
         dbIfFriendExistsSendInvitation(id);
     }
 
-    public void createDinnner(long timeStamp, String message) {
-        dbCreateDinner(timeStamp, message);
+    public void createDinnner(long timeStamp, String message, String imageURL) {
+        dbCreateDinner(timeStamp, message, imageURL);
     }
 
     class LocalBinder extends Binder {
@@ -431,12 +431,12 @@ public class FirebaseService extends Service {
         }
     }
 
-    private void dbCreateDinner(long timeStamp, String message) {
+    private void dbCreateDinner(long timeStamp, String message, String imageURL) {
         if(currentUser!=null && curUserDinnerClub!=null) {
             String key = mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).push().getKey();
 
             //Add user to dinner club and then delete dinner club invitation and all references
-            Dinner dinner = new Dinner(timeStamp, currentUser, message);
+            Dinner dinner = new Dinner(timeStamp, currentUser, message, imageURL);
             Map<String, Boolean> guests = curUserDinnerClub.members;
             guests.remove(encodeUserEmail(currentUser.getEmail()));
             dinner.guests = guests;

@@ -17,6 +17,7 @@ public interface Constants {
     String REGISTER_CITY = "dk.tennarasmussen.thedinnerclub.REGISTER_CITY";
     String DINNER_DATETIME = "dk.tennarasmussen.thedinnerclub.DINNER_DATETIME";
     String DINNER_MESSAGE = "dk.tennarasmussen.thedinnerclub.DINNER_MESSAGE";
+    String DINNER_IMAGE_URL = "dk.tennarasmussen.thedinnerclub.DINNER_IMAGE_URL";
 
     String BROADCAST_USER_UPDATED = "dk.tennarasmussen.thedinnerclub.BROADCAST_USER_UPDATED";
     String BROADCAST_DINNER_CLUB_UPDATED = "dk.tennarasmussen.thedinnerclub.BROADCAST_DINNER_CLUB_UPDATED";

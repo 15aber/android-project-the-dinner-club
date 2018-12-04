@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +25,7 @@ import dk.tennarasmussen.thedinnerclub.Model.DinnerClub;
 import dk.tennarasmussen.thedinnerclub.Model.User;
 
 import static dk.tennarasmussen.thedinnerclub.Constants.DINNER_DATETIME;
+import static dk.tennarasmussen.thedinnerclub.Constants.DINNER_IMAGE_URL;
 import static dk.tennarasmussen.thedinnerclub.Constants.DINNER_MESSAGE;
 import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_EMAIL;
 import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_PASS;
@@ -48,6 +50,7 @@ public class CreateDinnerActivity extends AppCompatActivity {
     Button btnCancel;
     Button btnCreate;
     EditText etMessage;
+    EditText etImageURL;
 
     FirebaseService mService;
     boolean mBound = false;
@@ -57,6 +60,7 @@ public class CreateDinnerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_dinner);
 
+        etImageURL = findViewById(R.id.etImageURL);
         etDateTime = (findViewById(R.id.etCDDateTimePicker));
         btn_calendar = findViewById(R.id.ivCalendar);
 
@@ -133,6 +137,7 @@ public class CreateDinnerActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             etDateTime.setText(savedInstanceState.getString(DINNER_DATETIME));
             etMessage.setText(savedInstanceState.getString(DINNER_MESSAGE));
+            etImageURL.setText(savedInstanceState.getString(DINNER_IMAGE_URL));
         }
     }
 
@@ -192,7 +197,7 @@ public class CreateDinnerActivity extends AppCompatActivity {
             Toast.makeText(this, "Input Validated, Dinner can be created", Toast.LENGTH_SHORT).show();
 
             if(mBound) {
-                mService.createDinnner(timeStamp, etMessage.getText().toString().trim());
+                mService.createDinnner(timeStamp, etMessage.getText().toString().trim(), etImageURL.getText().toString().trim());
                 Intent replyIntent = new Intent();
                 setResult(RESULT_OK, replyIntent);
                 finish();
@@ -220,8 +225,12 @@ public class CreateDinnerActivity extends AppCompatActivity {
         if (etDateTime.getText().toString().trim().isEmpty()) {
             etDateTime.setError(getString(R.string.date_time_hint) + " " + getString(R.string.required_string));
             valid = false;
-        } else if(timeStamp == 0) {  //if email input is not a valid email
+        } else if(timeStamp == 0) {
             etDateTime.setError(getString(R.string.date_time_hint) + " " + getString(R.string.not_valid_string));
+            valid = false;
+        }
+        if (!(Patterns.WEB_URL.matcher(etImageURL.getText().toString()).matches())) {
+            etImageURL.setError(getString(R.string.uri_hint) + " " + getString(R.string.not_valid_string));
             valid = false;
         }
         if (etMessage.getText().toString().trim().isEmpty()) {
@@ -237,6 +246,7 @@ public class CreateDinnerActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(DINNER_DATETIME, etDateTime.getText().toString());
         outState.putString(DINNER_MESSAGE, etMessage.getText().toString());
+        outState.putString(DINNER_IMAGE_URL, etImageURL.getText().toString());
         super.onSaveInstanceState(outState);
     }
 }
