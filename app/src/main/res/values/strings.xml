@@ -9,7 +9,7 @@
     <string name="btn_logout">Log out</string>
     <string name="btn_create_dinner_club">Create New Dinner Club</string>
     <string name="city_hint">City</string>
-    <string name="name_hint">Name</string>
+    <string name="name_hint">Member name</string>
     <string name="phone_hint">Phone</string>
     <string name="street_hint">Street name + nr.</string>
     <string name="zip_hint">Zip code</string>
