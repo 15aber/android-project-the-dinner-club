@@ -258,10 +258,12 @@ public class FirebaseService extends Service {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot!=null) {
                         Log.i(TAG, "Successfully loaded dinners from db.");
+                        ArrayList<Dinner> dinnersTemp = new ArrayList<>();
                         for (DataSnapshot dinnerSnapShot : dataSnapshot.getChildren()) {
                             Log.i(TAG, "Loaded dinner: " + dinnerSnapShot);
-                            mDinners.add(dinnerSnapShot.getValue(Dinner.class));
+                            dinnersTemp.add(dinnerSnapShot.getValue(Dinner.class));
                         }
+                        mDinners = dinnersTemp;
 
                         Intent broadcastIntent = new Intent();
                         broadcastIntent.setAction(BROADCAST_DINNERS_UPDATED);
