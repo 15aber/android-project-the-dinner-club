@@ -46,6 +46,7 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
     private User mUser;
     private DinnerClub mDinnerClub;
     private ArrayList<Dinner> mDinners = new ArrayList<>();
+    private DinnersAdapter adapter;
 
     //Views
     private Button btnLogout;
@@ -129,7 +130,7 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
     private void initRecyclerView() {
         Log.i(TAG, "initRecyclerView: init recyclerview");
         RecyclerView recyclerView = findViewById(R.id.homeRecyclerView);
-        DinnersAdapter adapter = new DinnersAdapter(mDinners, this);
+        adapter = new DinnersAdapter(mDinners, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -170,6 +171,9 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
             mUser = mService.getCurrentUser();
             mDinnerClub = mService.getCurUserDinnerClub();
             mDinners = mService.getDinners();
+            if (mDinners != null) {
+                adapter.setmDinnerList(mDinners);
+            }
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -187,6 +191,7 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
                     mUser = mService.getCurrentUser();
                     mDinnerClub = mService.getCurUserDinnerClub();
                     mDinners = mService.getDinners();
+                    adapter.setmDinnerList(mDinners);
                 }
 
             }

@@ -79,4 +79,9 @@ public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHold
             dinnerItemParent = itemView.findViewById(R.id.list_item);
         }
     }
+
+    public void setmDinnerList(ArrayList<Dinner> mDinnerList) {
+        this.mDinnerList = mDinnerList;
+        notifyDataSetChanged();
+    }
 }
