@@ -156,7 +156,6 @@ public class FirebaseService extends Service {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Log.i(TAG, "Firebase user is created and user data stored in database successfully.");
-                    Toast.makeText(FirebaseService.this, "Register successful", Toast.LENGTH_SHORT).show();
                     dbLoadCurrentUser();
                 }
             });
@@ -204,7 +203,7 @@ public class FirebaseService extends Service {
                     currentUser = dataSnapshot.getValue(User.class);
                     if (currentUser!=null) {
                         Log.i(TAG, "Successfully loaded user from db.");
-                        Toast.makeText(FirebaseService.this, "Loaded user: " + currentUser.getName(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FirebaseService.this, getText(R.string.loaded_user) + currentUser.getName(), Toast.LENGTH_SHORT).show();
 
                         dbLoadDinnerClubOfCurUser();
                         dbLoadCurUserDCInvitation();
@@ -235,8 +234,6 @@ public class FirebaseService extends Service {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     curUserDinnerClub = dataSnapshot.getValue(DinnerClub.class);
                     Log.i(TAG, "Successfully loaded dinner club from db.");
-                    Toast.makeText(FirebaseService.this, "Loaded dinner club: " + curUserDinnerClub.clubName, Toast.LENGTH_SHORT).show();
-
                     dbLoadDinners();
                 }
 
@@ -290,7 +287,6 @@ public class FirebaseService extends Service {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     curUserDCInv = dataSnapshot.getValue(ClubInvitation.class);
                     Log.i(TAG, "Successfully loaded dinner club invitation from db.");
-                    Toast.makeText(FirebaseService.this, "Loaded dinner club invitation from " + curUserDCInv.senderName, Toast.LENGTH_SHORT).show();
 
                     Intent broadcastIntent = new Intent();
                     broadcastIntent.setAction(BROADCAST_LOADED_DC_INVITATION);

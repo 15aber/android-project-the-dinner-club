@@ -77,8 +77,6 @@ public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHold
             public void onClick(View v) {
                 Log.i(TAG, "onClick: clicked on dinner: " + mDinnerList.get(i).getDateTime());
 
-                Toast.makeText(mContext, "Clicked on Dinner at: " + mDinnerList.get(i).getHost().getName(), Toast.LENGTH_SHORT).show();
-
                 Intent intent = new Intent(mContext, DinnerDetailsActivity.class);
                 intent.putExtra(DINNER_LIST_POSITION, i);
                 mContext.startActivity(intent);

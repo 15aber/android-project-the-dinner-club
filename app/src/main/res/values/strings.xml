@@ -58,4 +58,6 @@
     <string name="email_string">Email:</string>
     <string name="message_string">Message:</string>
     <string name="back">Back</string>
+    <string name="loaded_user">Loaded user:</string>
+    <string name="auth_failed">Authentication failed.</string>
 </resources>

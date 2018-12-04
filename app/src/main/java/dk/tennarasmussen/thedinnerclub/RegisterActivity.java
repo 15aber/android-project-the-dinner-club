@@ -79,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
         } else {
             final Intent data = getIntent();
             etEmail.setText(data.getStringExtra(LOGIN_EMAIL));
-            etPassword.setText(data.getStringExtra(LOGIN_EMAIL));
+            etPassword.setText(data.getStringExtra(LOGIN_PASS));
         }
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
