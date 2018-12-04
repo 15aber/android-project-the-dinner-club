@@ -3,6 +3,7 @@ package dk.tennarasmussen.thedinnerclub;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import dk.tennarasmussen.thedinnerclub.Model.Dinner;
 
@@ -47,6 +54,10 @@ public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHold
                 .into(viewHolder.dinnerImage);
 
         viewHolder.dinnerHost.setText(mDinnerList.get(i).getHost().toString() + "'s");
+        Date date = new Date(mDinnerList.get(i).getDateTime());
+        SimpleDateFormat simpleDate =  new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+        String strDt = simpleDate.format(date);
+        viewHolder.dinnerDateTime.setText(strDt);
 
         viewHolder.dinnerItemParent.setOnClickListener(new View.OnClickListener() {
             @Override
