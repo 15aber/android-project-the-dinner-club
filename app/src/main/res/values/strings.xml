@@ -50,4 +50,11 @@
     <string name="dinner_not_created_string">Error, dinner was not created.</string>
     <string name="dinneritem_dinner_at">Dinner at</string>
     <string name="uri_hint">Image URL</string>
+    <string name="dinner_string">Dinner</string>
+    <string name="host">Host:</string>
+    <string name="date_string">Date:</string>
+    <string name="address_text">Address:</string>
+    <string name="phone_string">Phone:</string>
+    <string name="email_string">Email:</string>
+    <string name="message_string">Message:</string>
 </resources>

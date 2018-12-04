@@ -29,7 +29,8 @@
             android:exported="true" />
 
         <activity android:name=".DinnerClubHomeActivity" />
-        <activity android:name=".CreateDinnerActivity"></activity>
+        <activity android:name=".CreateDinnerActivity" />
+        <activity android:name=".DinnerDetailsActivity"></activity>
     </application>
 
 </manifest>

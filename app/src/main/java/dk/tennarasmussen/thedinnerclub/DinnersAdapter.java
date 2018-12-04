@@ -1,6 +1,7 @@
 package dk.tennarasmussen.thedinnerclub;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
@@ -17,6 +18,7 @@ import com.bumptech.glide.Glide;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,6 +26,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import dk.tennarasmussen.thedinnerclub.Model.Dinner;
+
+import static dk.tennarasmussen.thedinnerclub.Constants.DINNER_LIST_POSITION;
 
 //Code modified from https://youtu.be/Vyqz_-sJGFk
 public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHolder> {
@@ -74,6 +78,10 @@ public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHold
                 Log.i(TAG, "onClick: clicked on dinner: " + mDinnerList.get(i).getDateTime());
 
                 Toast.makeText(mContext, "Clicked on Dinner at: " + mDinnerList.get(i).getHost().getName(), Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(mContext, DinnerDetailsActivity.class);
+                intent.putExtra(DINNER_LIST_POSITION, i);
+                mContext.startActivity(intent);
             }
         });
     }
