@@ -65,19 +65,6 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dinner_club_home);
         Log.i(TAG, "onCreate: Started");
 
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Maja", "Let's eat!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Nanna", "Let's eat some more!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Simone", "Let's eat!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Andreas", "Let's eat!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Tenna", "Let's eat!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Josefine", "Let's eat!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Maja", "Let's eat some more!!!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Nanna", "Let's eat some more!!!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Simone", "Let's eat some more!!!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Andreas", "Let's eat some more!!!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Tenna", "Let's eat some more!!!!"));
-        mDinners.add(new Dinner(System.currentTimeMillis(), "Josefine", "Let's eat some more!!!!"));
-
         initRecyclerView();
 
         mAuth = FirebaseAuth.getInstance();

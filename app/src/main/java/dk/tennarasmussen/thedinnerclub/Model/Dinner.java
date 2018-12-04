@@ -8,11 +8,11 @@ import java.util.Map;
 
 public class Dinner {
     private long dateTime;
-    private String host;
+    private User host;
     private String comment;
     public Map<String, Boolean> guests = new HashMap<>();
 
-    public Dinner(long dateTime, String host, String comment) {
+    public Dinner(long dateTime, User host, String comment) {
         this.dateTime = dateTime;
         this.host = host;
         this.comment = comment;
@@ -40,11 +40,11 @@ public class Dinner {
         this.dateTime = dateTime;
     }
 
-    public String getHost() {
+    public User getHost() {
         return host;
     }
 
-    public void setHost(String host) {
+    public void setHost(User host) {
         this.host = host;
     }
 

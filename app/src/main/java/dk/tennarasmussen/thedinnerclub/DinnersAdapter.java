@@ -53,7 +53,7 @@ public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHold
                 .load("http://www.dinktoons.com/wp-content/uploads/2011/06/dinosaur-veggie.jpg")
                 .into(viewHolder.dinnerImage);
 
-        viewHolder.dinnerHost.setText(mDinnerList.get(i).getHost().toString() + "'s");
+        viewHolder.dinnerHost.setText(mDinnerList.get(i).getHost().getName() + "'s");
         Date date = new Date(mDinnerList.get(i).getDateTime());
         SimpleDateFormat simpleDate =  new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
         String strDt = simpleDate.format(date);
@@ -64,7 +64,7 @@ public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHold
             public void onClick(View v) {
                 Log.i(TAG, "onClick: clicked on dinner: " + mDinnerList.get(i).getDateTime());
 
-                Toast.makeText(mContext, "Clicked on Dinner at: " + mDinnerList.get(i).getHost(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "Clicked on Dinner at: " + mDinnerList.get(i).getHost().getName(), Toast.LENGTH_SHORT).show();
             }
         });
     }

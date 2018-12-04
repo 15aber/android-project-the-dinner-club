@@ -436,7 +436,7 @@ public class FirebaseService extends Service {
             String key = mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).push().getKey();
 
             //Add user to dinner club and then delete dinner club invitation and all references
-            Dinner dinner = new Dinner(timeStamp, encodeUserEmail(currentUser.getEmail()), message);
+            Dinner dinner = new Dinner(timeStamp, currentUser, message);
             Map<String, Boolean> guests = curUserDinnerClub.members;
             guests.remove(encodeUserEmail(currentUser.getEmail()));
             dinner.guests = guests;
