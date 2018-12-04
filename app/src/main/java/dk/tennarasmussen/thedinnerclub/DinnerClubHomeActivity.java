@@ -179,6 +179,9 @@ public class DinnerClubHomeActivity extends AppCompatActivity {
                     mDinnerClub = mService.getCurUserDinnerClub();
                     mDinners = mService.getDinners();
                     adapter.setmDinnerList(mDinners);
+                    if (tvClubName.getText().toString().isEmpty() && mDinnerClub!=null) {
+                        tvClubName.setText(mDinnerClub.clubName);
+                    }
                 }
 
             }

@@ -229,7 +229,7 @@ public class CreateDinnerActivity extends AppCompatActivity {
             etDateTime.setError(getString(R.string.date_time_hint) + " " + getString(R.string.not_valid_string));
             valid = false;
         }
-        if (!(Patterns.WEB_URL.matcher(etImageURL.getText().toString()).matches())) {
+        if (!(etImageURL.getText().toString().isEmpty()) && !(Patterns.WEB_URL.matcher(etImageURL.getText().toString()).matches())) {
             etImageURL.setError(getString(R.string.uri_hint) + " " + getString(R.string.not_valid_string));
             valid = false;
         }
