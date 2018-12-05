@@ -339,7 +339,7 @@ public class FirebaseService extends Service {
         }
     }
 
-
+    //Using constructor to pass objects to AsyncTask https://stackoverflow.com/questions/31861848/how-can-i-pass-an-object-to-my-asynctask
     private class dbIfFriendExistsSendInvitation extends AsyncTask<Void, Void, Void> {
 
         private String emailId;
@@ -387,7 +387,7 @@ public class FirebaseService extends Service {
         }
     }
 
-
+    //Using constructor to pass objects to AsyncTask https://stackoverflow.com/questions/31861848/how-can-i-pass-an-object-to-my-asynctask
     private class dbSendMemberInvitation extends AsyncTask<Void, Void, Void> {
 
         private User friend;
@@ -497,6 +497,7 @@ public class FirebaseService extends Service {
         }
     }
 
+    //Using constructor to pass objects to AsyncTask https://stackoverflow.com/questions/31861848/how-can-i-pass-an-object-to-my-asynctask
     private class dbCreateDinner extends AsyncTask<Void, Void, Void> {
 
         private long timeStamp;
