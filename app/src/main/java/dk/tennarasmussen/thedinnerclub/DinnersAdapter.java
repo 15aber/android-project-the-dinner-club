@@ -53,7 +53,7 @@ public class DinnersAdapter extends RecyclerView.Adapter<DinnersAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
         Log.i(TAG, "onBindViewHolder: called");
 
-        if(mDinnerList.get(i).getImageURL() != null)
+        if(mDinnerList.get(i).getImageURL() != null && !(mDinnerList.get(i).getImageURL().isEmpty()))
         {
             Glide.with(mContext)
                     .asBitmap()
