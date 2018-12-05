@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -27,13 +26,6 @@ import dk.tennarasmussen.thedinnerclub.Model.User;
 import static dk.tennarasmussen.thedinnerclub.Constants.DINNER_DATETIME;
 import static dk.tennarasmussen.thedinnerclub.Constants.DINNER_IMAGE_URL;
 import static dk.tennarasmussen.thedinnerclub.Constants.DINNER_MESSAGE;
-import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_EMAIL;
-import static dk.tennarasmussen.thedinnerclub.Constants.LOGIN_PASS;
-import static dk.tennarasmussen.thedinnerclub.Constants.REGISTER_CITY;
-import static dk.tennarasmussen.thedinnerclub.Constants.REGISTER_NAME;
-import static dk.tennarasmussen.thedinnerclub.Constants.REGISTER_PHONE;
-import static dk.tennarasmussen.thedinnerclub.Constants.REGISTER_STREET;
-import static dk.tennarasmussen.thedinnerclub.Constants.REGISTER_ZIP;
 
 public class CreateDinnerActivity extends AppCompatActivity {
 
@@ -197,7 +189,7 @@ public class CreateDinnerActivity extends AppCompatActivity {
             Toast.makeText(this, "Input Validated, Dinner can be created", Toast.LENGTH_SHORT).show();
 
             if(mBound) {
-                mService.createDinnner(timeStamp, etMessage.getText().toString().trim(), etImageURL.getText().toString().trim());
+                mService.createDinner(timeStamp, etMessage.getText().toString().trim(), etImageURL.getText().toString().trim());
                 Intent replyIntent = new Intent();
                 setResult(RESULT_OK, replyIntent);
                 finish();
