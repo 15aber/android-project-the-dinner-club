@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,9 +73,15 @@ public class FirebaseService extends Service {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                currentUser = null;
+                curUserDinnerClub = null;
+                curUserDCInv = null;
+                mDinners = null;
+
                 if(firebaseAuth.getCurrentUser() != null) {
                     Log.i(TAG, "Current user is: " + firebaseAuth.getCurrentUser().getEmail());
                     //Toast.makeText(FirebaseService.this, "Current user is: " + firebaseAuth.getCurrentUser().getUid(), Toast.LENGTH_SHORT).show();
+                    new dbLoadCurrentUser().execute();
                 } else {
                     Log.i(TAG, "User logged out. Service will stop self.");
                     stopSelf();
@@ -278,7 +285,7 @@ public class FirebaseService extends Service {
         protected Void doInBackground(Void... voids) {
             if (curUserDinnerClub != null) {
                 //Modified from https://firebase.google.com/docs/database/android/read-and-write
-                mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).orderByChild("dateTime").addValueEventListener(new ValueEventListener() {
+                mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).orderByChild("dateTime").startAt(new Date().getTime()).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot!=null) {
