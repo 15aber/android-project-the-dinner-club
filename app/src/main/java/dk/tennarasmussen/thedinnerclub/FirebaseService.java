@@ -285,6 +285,7 @@ public class FirebaseService extends Service {
         protected Void doInBackground(Void... voids) {
             if (curUserDinnerClub != null) {
                 //Modified from https://firebase.google.com/docs/database/android/read-and-write
+                //Only load dinners taking place later than now https://stackoverflow.com/a/39587833
                 mDatabase.child(FB_DB_DINNERS).child(currentUser.getDinnerClub()).orderByChild("dateTime").startAt(new Date().getTime()).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
